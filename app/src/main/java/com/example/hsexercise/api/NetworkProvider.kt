@@ -4,23 +4,21 @@ import com.example.hsexercise.BuildConfig
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import io.reactivex.schedulers.Schedulers
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.CallAdapter
 import retrofit2.Converter
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.HostnameVerifier
 
 object NetworkProvider {
     fun provideRestClient() =
-        RestClient(RestClientConfig(
-            provideGsonConverterFactory(),
-            provideRxJava2CallAdapterFactory()).apply {
+        RestClient(
+            RestClientConfig(
+            provideGsonConverterFactory(), provideLiveDataCallAdapterFactory()
+            ).apply {
             addInterceptor(provideHttpLoggingInterceptor())
         })
 
@@ -42,8 +40,8 @@ object NetworkProvider {
     private fun provideGsonConverterFactory(): GsonConverterFactory =
         GsonConverterFactory.create(provideGson())
 
-    private fun provideRxJava2CallAdapterFactory(): RxJava2CallAdapterFactory =
-        RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io())
+    private fun provideLiveDataCallAdapterFactory(): LiveDataCallAdapterFactory =
+        LiveDataCallAdapterFactory()
 }
 
 class RestClient(private val restClientConfig: RestClientConfig) {
@@ -72,7 +70,7 @@ val API_TIME_OUT = if (BuildConfig.DEBUG) 60L else 20L
 
 data class RestClientConfig(
     val converterFactory: Converter.Factory,
-    val callAdapterFactory: CallAdapter.Factory,
+    val callAdapterFactory: LiveDataCallAdapterFactory,
     val readTimeOutValue: Long = API_TIME_OUT,
     val writeTimeOutValue: Long = API_TIME_OUT,
     val connectTimeOutValue: Long = API_TIME_OUT) {
