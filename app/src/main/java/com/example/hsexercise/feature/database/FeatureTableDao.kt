@@ -1,12 +1,12 @@
 package com.example.hsexercise.feature.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
-import io.reactivex.Maybe
 
 @Dao
 interface FeatureTableDao {
     @Query("SELECT * FROM feature")
-    fun getAll(): Maybe<List<FeatureModel>>
+    fun getAll(): LiveData<List<FeatureModel>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(models: List<FeatureModel>)
